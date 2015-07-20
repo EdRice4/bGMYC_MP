@@ -32,48 +32,52 @@ bgmyc.multiphylo.mpi <- function(
         }
     }
 
-    # Halt execultion of script if insufficient amount of CPUs.
+    # Halt execultion of script if insufficient amount of CPUs
     if (nproc == 2) {
-        stop("This system has an insufficient number of CPUs.")
+        stop("This system has an insufficient number of CPUs.
+             If running on linux, check no. of CPUs in terminal with 'nproc'.
+             If running on mac, check no. of CPUs in terminal with 'sysctl -n hw.cpu'.\n")
     }
 
-    if (nproc >= 3) # Spawn slave CPUs, preserving one for master
-        Rmpi::mpi.spawn.Rslaves(nslaves=nproc-1)
-    # Calculate how many trees to send to each (keeping portion for master)
+    # Spawn slave CPUs, preserving one for master
+    Rmpi::mpi.spawn.Rslaves(nslaves=nproc-1)
+    # Calculate how many trees to send to each slave
     buffer <- ceiling(length / (nproc - 1))
     # Partition data
     trees.split <- split(multiphylo, ceiling(seq_along / buffer))
-    # Scatter data among members in comm
-    # mpi.scatter.Robj2slave(trees.split)
-    # Redefine number of trees to reflect partitioning
-    # mpi.bcast.cmd(ntre <- length(trees.ind))
-    # Redefine number of trees to reflect partitioning
+    # Change legnth of trees to reflect partitioning
     ntre <- lenght(trees.split[[1]])
 
-    # Initialize empty list for output
-    mpi.bcast.cmd(outputlist <- list())
-
-    # Redefine function (we will utilize bcast.cmd) mpi.bcast.Robj2slave/mpi.bcast.Rfun2slave?
+    # Optimize function for MPI environment
     bgmyc.multiphylo <- function(
-                                 multiphylo, mcmc, burnin, thinning, py1, py2,
-                                 pc1, pc2, t1, t2, scale, start, sampler,
-                                 likelihood, prior
+                                 multiphylo, mcmc=mcmc, burnin=burnin,
+                                 thinning=thinning, py1=py1, py2=py2,
+                                 pc1=pc1, pc2=pc2, t1=t1, t2=t2, scale=scale,
+                                 start=start, sampler=sampler,
+                                 likelihood=likelihood, prior=prior
                                  )
     {
+
+        # Initialize empty list for output
+        outputlist <- list()
+
         for (i in 1:multiphylo) {
             data <- bgmyc.dataprep(trees.ind[[i]])
             NNodes <- data$tree$Nnode  # why is this performed?
-            sampler(data, m=mcmc, burnin, thinning, py1, py2, pc1, pc2, t1, t2, scale, start,  likelihood, prior)
-            # cat("Tree number ", i, "is finished.", "\n")  # necessary?
+            sampler(
+                    data, m=mcmc, burnin, thinning, py1, py2, pc1, pc2, t1,
+                    t2, scale, start, likelihood, prior
+                    )
         }
+
         class(outputlist) <- "multibgmyc"
         return(outputlist)
+
     }
 
-    # Transfer function to slaves
-    mpi.bcast.Robj2salve(bgmyc.multiphylo)
-
     # Run function
-    mpi.bcast.cmd(outputlist <- bgmyc.mutliphylo(
-
+    output <- mpi.apply(trees.split, bgmyc.multiphylo)
+    
+    # Convert output to vector
+    output.vector <- unlist(output)
 }
