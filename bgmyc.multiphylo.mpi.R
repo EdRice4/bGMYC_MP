@@ -21,7 +21,7 @@ bgmyc.multiphylo.mpi <- function(
         }
     }
 
-    # Halt execultion of script if insufficient amount of CPUs
+    # Halt execution of script if insufficient amount of CPUs
     if (nproc == 2) {
         stop(
              "This system has an insufficient number of CPUs.
