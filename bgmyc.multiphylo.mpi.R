@@ -55,7 +55,7 @@ bgmyc.multiphylo.mpi <- function(
     # }
 
     # Optimize function for MPI environment
-    bgmyc.multiphylo <- function(
+    multiphylo <- function(
                                  multiphylo, mcmc=mcmc, burnin=burnin,
                                  thinning=thinning, py1=py1, py2=py2,
                                  pc1=pc1, pc2=pc2, t1=t1, t2=t2, scale=scale,
@@ -82,13 +82,11 @@ bgmyc.multiphylo.mpi <- function(
     }
 
     # Run function
-    output <- mpi.apply(trees.split, bgmyc.multiphylo)
+    output <- mpi.apply(trees.split, multiphylo)
     
     # Exit MPI
     mpi.exit()
 
-    # Convert output to vector and return it
-    # May need to change class; not conver to vector
-    output.vector <- unlist(output)
-    return(outputlist)
+    # Return output
+    return(output)
 }
