@@ -1,3 +1,6 @@
+#!/usr/bin/env Rscript
+
+# Write that function, boi (I have no idea what I am doing)
 bgmyc.multiphylo.mpi <- function(
                                  multiphylo, mcmc, burnin, thinning, py1=0, py2=0,
                                  pc1=0, pc2=0, t1=2, t2=51, scale=c(20, 10, 5.00),
@@ -81,7 +84,12 @@ bgmyc.multiphylo.mpi <- function(
 
     }
 
-    # Run function
+    # Prepare environment; this is ugly
+    mpi.bcast.Robj2slave(is.ultrametric)
+    mpi.bcast.Robj2slave(is.binary.tree)
+    mpi.bcast.Robj2slave(branching.times)
+    
+    # Run that function, boi
     output <- mpi.apply(trees.split, multiphylo)
     
     # Exit MPI
