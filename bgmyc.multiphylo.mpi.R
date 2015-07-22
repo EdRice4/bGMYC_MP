@@ -10,9 +10,6 @@ bgmyc.multiphylo.mpi <- function(
                                  )
 {
 
-    # How many trees are we working with?
-    ntre <- length(multiphylo)
-
     # Test for MPI environment and determine number of CPUs to utilize
     # if user did not specify
     if (!nproc) {
@@ -36,11 +33,9 @@ bgmyc.multiphylo.mpi <- function(
     # Spawn slave CPUs, preserving one for master
     Rmpi::mpi.spawn.Rslaves(nslaves=nproc-1)  # the fuck do these double colons do?
     # Calculate how many trees to send to each slave
-    buffer <- ceiling(length / (nproc - 1))
+    buffer <- ceiling(length(multiphylo) / (nproc - 1))
     # Partition data
     trees.split <- split(multiphylo, ceiling(seq_along / buffer))
-    # Change legnth of trees to reflect partitioning
-    ntre <- length(trees.split[[1]])
 
     # Print informative output for user
     # cat("You are running a multi tree analysis on", ntre, "trees.\n")
