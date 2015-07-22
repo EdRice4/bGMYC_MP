@@ -11,7 +11,7 @@ bgmyc.multiphylo.mpi <- function(
 {
 
     # How many trees are we working with?
-    ntre <- length
+    ntre <- length(multiphylo)
 
     # Test for MPI environment and determine number of CPUs to utilize
     # if user did not specify
@@ -59,12 +59,12 @@ bgmyc.multiphylo.mpi <- function(
 
     # Optimize function for MPI environment
     multiphylo <- function(
-                                 multiphylo, mcmc=mcmc, burnin=burnin,
-                                 thinning=thinning, py1=py1, py2=py2,
-                                 pc1=pc1, pc2=pc2, t1=t1, t2=t2, scale=scale,
-                                 start=start, sampler=sampler,
-                                 likelihood=likelihood, prior=prior
-                                 )
+                           multiphylo, mcmc=mcmc, burnin=burnin,
+                           thinning=thinning, py1=py1, py2=py2,
+                           pc1=pc1, pc2=pc2, t1=t1, t2=t2, scale=scale,
+                           start=start, sampler=sampler,
+                           likelihood=likelihood, prior=prior
+                           )
     {
 
         # Initialize empty list for output
