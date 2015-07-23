@@ -6,23 +6,20 @@ bgmyc.multiphylo.mpi <- function(
                                  pc1=0, pc2=0, t1=2, t2=51, scale=c(20, 10, 5.00),
                                  start=c(1.0, 0.5, 50.0), sampler=bgmyc.gibbs.mpi,
                                  likelihood=bgmyc.lik, prior=bgmyc.prior,
-                                 nproc=NULL
                                  )
 {
 
     # Test for MPI environment and determine number of CPUs to utilize
     # if user did not specify
-    if (!nproc) {
-        if (Sys.info()['sysname'] == "Linux") {
-            nproc <- as.numeric(system("nproc", intern=T))
-        }
-        if (Sys.info()['sysname'] == "Darwin") {
-            nproc <- as.numeric(system("sysctl -n hw.ncpu", intern=T))
-        }
+    if (Sys.info()['sysname'] == "Linux") {
+        nproc <- as.numeric(system("nproc", intern=T))
+    }
+    if (Sys.info()['sysname'] == "Darwin") {
+        nproc <- as.numeric(system("sysctl -n hw.ncpu", intern=T))
     }
 
     # Halt execution of script if insufficient amount of CPUs
-    if (nproc == 2) {
+    if (nproc <= 2) {
         stop(
              "This system has an insufficient number of CPUs.
              If running on linux, check no. of CPUs in terminal with 'nproc'.
@@ -31,11 +28,11 @@ bgmyc.multiphylo.mpi <- function(
     }
 
     # Spawn slave CPUs, preserving one for master
-    Rmpi::mpi.spawn.Rslaves(nslaves=nproc-1)  # the fuck do these double colons do?
+    mpi.spawn.Rslaves(nslaves=nproc-1)
     # Calculate how many trees to send to each slave
     buffer <- ceiling(length(multiphylo) / (nproc - 1))
     # Partition data
-    trees.split <- split(multiphylo, ceiling(seq_along / buffer))
+    trees.split <- split(multiphylo, ceiling(seq_along(multiphylo) / buffer))
 
     # Print informative output for user
     # cat("You are running a multi tree analysis on", ntre, "trees.\n")
@@ -65,7 +62,7 @@ bgmyc.multiphylo.mpi <- function(
         # Initialize empty list for output
         outputlist <- list()
 
-        for (i in 1:multiphylo) {
+        for (i in 1:length(multiphylo)) {
             data <- bgmyc.dataprep(trees.ind[[i]])
             NNodes <- data$tree$Nnode  # why is this performed?
             sampler(
