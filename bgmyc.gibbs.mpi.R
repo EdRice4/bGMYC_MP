@@ -1,5 +1,9 @@
-bgmyc.gibbs <-
-function (data, m, burnin=1, thinning=1, py1, py2, pc1, pc2, t1, t2, scale=c(20, 10, 5.00), start=c(1.0, 0.5, 50.0), likelihood, prior) {
+bgmyc.gibbs.mpi <- function (
+                             data, m, burnin=1, thinning=1, py1, py2, pc1, pc2,
+                             t1, t2, scale=c(20, 10, 5.00),
+                             start=c(1.0, 0.5, 50.0), likelihood, prior
+                             )
+{
 
 	
 	NNodes<-data$tree$Nnode
