@@ -75,6 +75,10 @@ bgmyc.multiphylo.mpi <- function(
     }
 
     # Prepare environment; this is ugly
+    mpi.bcast.Robj2slave(bgmyc.gibbs.mpi)
+    mpi.bcast.Robj2slave(bgmyc.lik)
+    mpi.bcast.Robj2slave(bgmyc.prior)
+    mpi.bcast.Robj2slave(bgmyc.dataprep)
     mpi.bcast.Robj2slave(is.ultrametric)
     mpi.bcast.Robj2slave(is.binary.tree)
     mpi.bcast.Robj2slave(branching.times)
