@@ -82,7 +82,7 @@ bgmyc.multiphylo.mpi <- function(
     mpi.bcast.Robj2slave(branching.times)
     
     # Run that function, boi
-    output <- mpi.apply(trees.split, multiphylo)
+    output <- mpi.apply(trees.split, bgmyc.mpi)
     
     # Exit MPI
     mpi.exit()
