@@ -9,7 +9,6 @@ bgmyc.multiphylo.mpi <- function(
 {
 
     # Test for MPI environment and determine number of CPUs to utilize
-    # if user did not specify
     if (Sys.info()['sysname'] == "Linux") {
         nproc <- as.numeric(system("nproc", intern=T))
     }
