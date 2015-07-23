@@ -1,5 +1,5 @@
-bgmyc.dataprep <-
-function(tr){ 	
+bgmyc.dataprep <- function(tr)
+{
 
 	if (!is.ultrametric(tr)) {
 		stop("Your input tree is not ultrametric. This method requires that trees be ultrametric.")
@@ -83,7 +83,8 @@ function(tr){
 					  }
 
 
-	create.mat<-function(nthresh=numnod){
+	create.mat <- function(nthresh=numnod)
+	{
 	
 		mrca.nodes<-list()
 		nod.types<-list()
