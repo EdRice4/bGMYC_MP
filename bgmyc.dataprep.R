@@ -33,11 +33,18 @@ bgmyc.dataprep <- function(tr)
 		assign("nested", sapply((numtip + 1):numall, nest.nodes), 
 			envir = local.env)
 
-		ancs <- cbind(tr$edge[pmatch((1:numnod + numtip), tr$edge[, 
-			2]), 1], (1:numnod + numtip))
+		ancs <- cbind(
+		              tr$edge[
+		                      pmatch(
+		                             (1:numnod + numtip),
+		                             tr$edge[, 2]
+		                             )
+		                      , 1]
+		              , (1:numnod + numtip))
 		bt.ancs <- cbind(bt[ancs[, 1] - numtip], bt[ancs[, 2] - 
 			numtip])
 		assign("bt.ancs", bt.ancs, envir = local.env)
+		cat(bt.ancs)
 		
 	}
 
@@ -95,12 +102,12 @@ bgmyc.dataprep <- function(tr)
 		
 		for (j in (2:nthresh)) {										
 			threshy <- sb[j]									
+			# Issue is in tmp
 			tmp <- (bt.ancs[, 1] < threshy) & (bt.ancs[, 2] >= threshy)		
 			nod.type <- tmp + (bt >= threshy)								
-			cat(threshy, tmp)
 			mrca.nodes[[j]] <- which(nod.type == 2)				
-			#if (nod.type[1] == 1) {
-			if (nod.type[2] == 1) {
+            if (nod.type[1] == 1) {
+			#if (nod.type[2] == 1) {
 				nod.type[1] <- 2
 			}
 			nod.types[[j]]<-nod.type		
