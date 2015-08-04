@@ -36,15 +36,22 @@ bgmyc.dataprep <- function(tr)
 		ancs <- cbind(
 		              tr$edge[
 		                      pmatch(
+		                             # Labelling nodes
 		                             (1:numnod + numtip),
 		                             tr$edge[, 2]
 		                             )
 		                      , 1]
 		              , (1:numnod + numtip))
+		# Issue is in pmatch
+		## Issue is in the manner in which the nodes are labelled; the first
+		## node of the tree, that posessing the lowest value,
+		## the one furthest left, will never? be an end node and will therefore
+		## never be present in the 2nd column of tr$edge.
+		# a <- 1:numnod
+		# b <- a + numtip
 		bt.ancs <- cbind(bt[ancs[, 1] - numtip], bt[ancs[, 2] - 
 			numtip])
 		assign("bt.ancs", bt.ancs, envir = local.env)
-		cat(bt.ancs)
 		
 	}
 
@@ -102,7 +109,6 @@ bgmyc.dataprep <- function(tr)
 		
 		for (j in (2:nthresh)) {										
 			threshy <- sb[j]									
-			# Issue is in tmp
 			tmp <- (bt.ancs[, 1] < threshy) & (bt.ancs[, 2] >= threshy)		
 			nod.type <- tmp + (bt >= threshy)								
 			mrca.nodes[[j]] <- which(nod.type == 2)				
