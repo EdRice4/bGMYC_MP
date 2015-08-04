@@ -97,8 +97,9 @@ bgmyc.dataprep <- function(tr)
 			threshy <- sb[j]									
 			tmp <- (bt.ancs[, 1] < threshy) & (bt.ancs[, 2] >= threshy)		
 			nod.type <- tmp + (bt >= threshy)								
+			cat(threshy, tmp)
 			mrca.nodes[[j]] <- which(nod.type == 2)				
-			cat(nod.type[1])
+			#if (nod.type[1] == 1) {
 			if (nod.type[2] == 1) {
 				nod.type[1] <- 2
 			}
