@@ -38,28 +38,32 @@ bgmyc.dataprep <- function(tree) {
     read.data <- function() {
         # Get branch times (distance from each node the tips)
         branch.times <- -branching.times(tree)
-        # Effectively set threshold of branching times to be -1000000
+        # Effectively set upper threshold of branching times to be -0.000001
         branch.times[branch.times > -1e-06] <- -1e-06
         names(branch.times) <- NULL
         assign("branch.times", branch.times, envir = local.env)
         # Sort branch.times in ascending order
         assign("sorted.branch.times", sort(branch.times), envir = local.env)
-        assign("number.nodes", length(branch.times), envir = local.env)
+        # assign("number.nodes", length(branch.times), envir = local.env)
+        assign("number.nodes", tree$Nnode, envir = local.env)
+        # assign("number.tips", length(tree$tip.lable, envir = local.env)
         assign("number.tips", length(tree$tip.label), envir = local.env)
         assign(
                 "number.nodes.tips",
-                length(branch.times) + length(tree$tip.label),
+                number.nodes + number.tips,
                 envir = local.env
                 )
         
         internod <- sorted.branch.times[2:number.nodes] - sorted.branch.times[1:number.nodes - 1]
-        internod[number.nodes] <- 0 - sorted.branch.times[number.nodes]
+        internod[number.nodes] <- abs(sorted.branch.times[number.nodes])
         assign("internod", internod, envir = local.env)
 
-        assign("nesting", sapply((number.tips + 1):number.nodes.tips, nesting.nodes), 
-            envir = local.env)
-        assign("nested", sapply((number.tips + 1):number.nodes.tips, nest.nodes), 
-            envir = local.env)
+        assign("nesting",
+               sapply((number.tips + 1):number.nodes.tips, nesting.nodes),
+               envir = local.env)
+        assign("nested",
+               sapply((number.tips + 1):number.nodes.tips, nest.nodes),
+               envir = local.env)
 
         ancs <- cbind(
                       # Get corresponding beginning node for each end node
@@ -86,7 +90,7 @@ bgmyc.dataprep <- function(tree) {
         
     }
 
-                      nest.nodes <- function(x, p = 0) {
+                      nest.nodes <- function(x) {
                           number.tips <- length(tree$tip.label)
                           nods <- array(NA, 0)
                           desc <- as.integer(tree$edge[, 2][tree$edge[, 1] == x])
@@ -104,7 +108,7 @@ bgmyc.dataprep <- function(tree) {
                           }
                       }
 
-                      nesting.nodes <- function(x, p = 0) {
+                      nesting.nodes <- function(x) {
                           number.tips <- length(tree$tip.label)
                           nod <- array(NA, 0)
                           if (x >= number.tips + 2) {
