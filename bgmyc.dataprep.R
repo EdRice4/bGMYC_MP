@@ -38,14 +38,14 @@ bgmyc.dataprep <- function(tree)
 		branch.times[branch.times > -1e-06] <- -1e-06
 		names(branch.times) <- NULL
 		assign("branch.times", branch.times, envir = local.env)
-		assign("sb", sort(branch.times), envir = local.env)
+		assign("sorted.branch.times", sort(branch.times), envir = local.env)
 		assign("numnod", length(branch.times), envir = local.env)
 		assign("numtip", length(tree$tip.label), envir = local.env)
 		assign("numall", length(branch.times) + length(tree$tip.label), envir = local.env)
 		assign("nthresh", numnod, envir = local.env)
 		
-		internod <- sb[2:numnod] - sb[1:numnod - 1]
-		internod[numnod] <- 0 - sb[numnod]
+		internod <- sorted.branch.times[2:numnod] - sorted.branch.times[1:numnod - 1]
+		internod[numnod] <- 0 - sorted.branch.times[numnod]
 		assign("internod", internod, envir = local.env)
 
 		assign("nesting", sapply((numtip + 1):numall, nesting.nodes), 
@@ -132,7 +132,7 @@ bgmyc.dataprep <- function(tree)
 		
 		for (j in (2:nthresh)) {										
 			# Threshy is the distinction?
-			threshy <- sb[j]									
+			threshy <- sorted.branch.times[j]									
 			# Tmp does not care about NA
 			tmp <- (branch.times.ancs[, 1] < threshy) & (branch.times.ancs[, 2] >= threshy)		
 			nod.type <- tmp + (branch.times >= threshy)								
