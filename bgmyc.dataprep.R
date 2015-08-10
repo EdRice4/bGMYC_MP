@@ -22,7 +22,10 @@ bgmyc.dataprep <- function(tree) {
     }
     # If zero branch lengths in tree, halt execution and display appropriate
     # error message.
-    if (0 %in% tree$edge.length[which(tree$edge[,2]<=length(tree$tip.label))]) {
+    if (
+        0 %in% tree$edge.length[
+                                which(tree$edge[ ,2] <= length(tree$tip.label))
+                                ]) {
         stop(
              "Your tree contains tip branches with zero length. This will
              wreak havoc with the GMYC model."
@@ -39,6 +42,7 @@ bgmyc.dataprep <- function(tree) {
         branch.times[branch.times > -1e-06] <- -1e-06
         names(branch.times) <- NULL
         assign("branch.times", branch.times, envir = local.env)
+        # Sort branch.times in ascending order
         assign("sorted.branch.times", sort(branch.times), envir = local.env)
         assign("number.nodes", length(branch.times), envir = local.env)
         assign("number.tips", length(tree$tip.label), envir = local.env)
