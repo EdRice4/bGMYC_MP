@@ -42,7 +42,7 @@ bgmyc.dataprep <- function(tree)
 		assign("branch.times", branch.times, envir = local.env)
 		assign("sorted.branch.times", sort(branch.times), envir = local.env)
 		assign("number.nodes", length(branch.times), envir = local.env)
-		assign("numtip", length(tree$tip.label), envir = local.env)
+		assign("number.tips", length(tree$tip.label), envir = local.env)
 		assign("numall", length(branch.times) + length(tree$tip.label), envir = local.env)
 		assign("nthresh", number.nodes, envir = local.env)
 		
@@ -50,9 +50,9 @@ bgmyc.dataprep <- function(tree)
 		internod[number.nodes] <- 0 - sorted.branch.times[number.nodes]
 		assign("internod", internod, envir = local.env)
 
-		assign("nesting", sapply((numtip + 1):numall, nesting.nodes), 
+		assign("nesting", sapply((number.tips + 1):numall, nesting.nodes), 
 			envir = local.env)
-		assign("nested", sapply((numtip + 1):numall, nest.nodes), 
+		assign("nested", sapply((number.tips + 1):numall, nest.nodes), 
 			envir = local.env)
 
 		ancs <- cbind(
@@ -61,33 +61,33 @@ bgmyc.dataprep <- function(tree)
 		                      # Return position of each end node
 		                      pmatch(
 		                             # Labelling nodes
-		                             (1:number.nodes + numtip),
+		                             (1:number.nodes + number.tips),
 		                             # End nodes
 		                             tree$edge[, 2]
 		                             )
 		                      , 1]
-		              , (1:number.nodes + numtip))
+		              , (1:number.nodes + number.tips))
 		# Issue is in pmatch
 		## Issue is in the manner in which the nodes are labelled; the first
 		## node of the tree, that posessing the lowest value,
 		## the one furthest left, will never? be an end node and will therefore
 		## never be present in the 2nd column of tree$edge.
 		# a <- 1:number.nodes
-		# b <- a + numtip
-		branch.times.ancs <- cbind(branch.times[ancs[, 1] - numtip], branch.times[ancs[, 2] - 
-			numtip])
+		# b <- a + number.tips
+		branch.times.ancs <- cbind(branch.times[ancs[, 1] - number.tips], branch.times[ancs[, 2] - 
+			number.tips])
 		assign("branch.times.ancs", branch.times.ancs, envir = local.env)
 		
 	}
 
 					  nest.nodes <- function(x, p = 0) {
-						  numtip <- length(tree$tip.label)
+						  number.tips <- length(tree$tip.label)
 						  nods <- array(NA, 0)
 						  desc <- as.integer(tree$edge[, 2][tree$edge[, 1] == x])
-						  if (desc[1] > numtip) {
+						  if (desc[1] > number.tips) {
 							  nods <- c(nods, desc[1], nest.nodes(desc[1]))
 						  }
-						  if (desc[2] > numtip) {
+						  if (desc[2] > number.tips) {
 							  nods <- c(nods, desc[2], nest.nodes(desc[2]))
 						  }
 						  if (length(nods) > 0) {
@@ -99,18 +99,18 @@ bgmyc.dataprep <- function(tree)
 					  }
 
 					  nesting.nodes <- function(x, p = 0) {
-						  numtip <- length(tree$tip.label)
+						  number.tips <- length(tree$tip.label)
 						  nod <- array(NA, 0)
-						  if (x >= numtip + 2) {
+						  if (x >= number.tips + 2) {
 							  anc <- as.integer(tree$edge[, 1][tree$edge[, 2] == x])
 						  }
 						  else {
 							  anc <- 1
 						  }
-						  if (anc >= numtip + 2) {
+						  if (anc >= number.tips + 2) {
 							  nod <- c(nod, anc, nesting.nodes(anc))
 						  }
-						  if (anc == numtip + 1) {
+						  if (anc == number.tips + 1) {
 							  nod <- c(nod, anc)
 						  }
 						  if (length(nod) > 0) {
@@ -155,7 +155,7 @@ bgmyc.dataprep <- function(tree)
 			for (i in (1:n[[j]])) {										
 				list.s.nod[[j]][i, mrca.nodes[[j]][i]] <- 2										
  				if (!is.null(nested[[mrca.nodes[[j]][i]]])) {				
-					list.s.nod[[j]][i, nested[[mrca.nodes[[j]][i]]] - numtip] <- 1		
+					list.s.nod[[j]][i, nested[[mrca.nodes[[j]][i]]] - number.tips] <- 1		
 				}
 				list.s.nod[[j]][i, ] <- list.s.nod[[j]][i, order(branch.times)]		
 				list.i.mat[[j]][i, ][list.s.nod[[j]][i, ] == 2] <- 2		
