@@ -1,6 +1,10 @@
+#!/usr/bin/env Rscript
+
+# {{{  bgmyc.dataprep
 bgmyc.dataprep <- function(tree)
 {
 
+	# {{{ Error
 	# If the tree is not ultramteric, halt execution and display appropriate
 	# error message.
 	if (!is.ultrametric(tree)) {
@@ -9,30 +13,35 @@ bgmyc.dataprep <- function(tree)
 		     trees be ultrametric."
 		     )
 	}
+	# If the tree is not bifurcating, halt execution and display appropriate
+	# error message.
 	if (!is.binary.tree(tree)) {
 		stop(
 		     "Your input tree is not fully bifurcating, please resolve with
 		     zero branch lengths"
 		     )
 	}
+	# If zero branch lengths in tree, halt execution and display appropriate
+	# error message.
 	if (0 %in% tree$edge.length[which(tree$edge[,2]<=length(tree$tip.label))]) {
 		stop(
 		     "Your tree contains tip branches with zero length. This will
 		     wreak havoc with the GMYC model."
 		     )
 	}
+	# }}}
 
 
 	local.env <- environment()
-	read.data <- function(z = 1) {
-		bt <- -branching.times(tree)
-		bt[bt > -1e-06] <- -1e-06
-		names(bt) <- NULL
-		assign("bt", bt, envir = local.env)
-		assign("sb", sort(bt), envir = local.env)
-		assign("numnod", length(bt), envir = local.env)
+	read.data <- function() {
+		branch.times <- -branching.times(tree)
+		branch.times[branch.times > -1e-06] <- -1e-06
+		names(branch.times) <- NULL
+		assign("branch.times", branch.times, envir = local.env)
+		assign("sb", sort(branch.times), envir = local.env)
+		assign("numnod", length(branch.times), envir = local.env)
 		assign("numtip", length(tree$tip.label), envir = local.env)
-		assign("numall", length(bt) + length(tree$tip.label), envir = local.env)
+		assign("numall", length(branch.times) + length(tree$tip.label), envir = local.env)
 		assign("nthresh", numnod, envir = local.env)
 		
 		internod <- sb[2:numnod] - sb[1:numnod - 1]
@@ -63,9 +72,9 @@ bgmyc.dataprep <- function(tree)
 		## never be present in the 2nd column of tree$edge.
 		# a <- 1:numnod
 		# b <- a + numtip
-		bt.ancs <- cbind(bt[ancs[, 1] - numtip], bt[ancs[, 2] - 
+		branch.times.ancs <- cbind(branch.times[ancs[, 1] - numtip], branch.times[ancs[, 2] - 
 			numtip])
-		assign("bt.ancs", bt.ancs, envir = local.env)
+		assign("branch.times.ancs", branch.times.ancs, envir = local.env)
 		
 	}
 
@@ -125,8 +134,8 @@ bgmyc.dataprep <- function(tree)
 			# Threshy is the distinction?
 			threshy <- sb[j]									
 			# Tmp does not care about NA
-			tmp <- (bt.ancs[, 1] < threshy) & (bt.ancs[, 2] >= threshy)		
-			nod.type <- tmp + (bt >= threshy)								
+			tmp <- (branch.times.ancs[, 1] < threshy) & (branch.times.ancs[, 2] >= threshy)		
+			nod.type <- tmp + (branch.times >= threshy)								
 			mrca.nodes[[j]] <- which(nod.type == 2)				
             if (nod.type[1] == 1) {
 			#if (nod.type[2] == 1) {
@@ -139,14 +148,14 @@ bgmyc.dataprep <- function(tree)
 			list.i.mat[[j]] <- matrix(0, ncol = numnod, nrow = (n[[j]] + 1))			
 			list.s.nod[[j]] <- matrix(0, ncol = numnod, nrow = (n[[j]] + 1))			
 
-			nod[[j]]<-nod.types[[j]][order(bt)]	
+			nod[[j]]<-nod.types[[j]][order(branch.times)]	
 
 			for (i in (1:n[[j]])) {										
 				list.s.nod[[j]][i, mrca.nodes[[j]][i]] <- 2										
  				if (!is.null(nested[[mrca.nodes[[j]][i]]])) {				
 					list.s.nod[[j]][i, nested[[mrca.nodes[[j]][i]]] - numtip] <- 1		
 				}
-				list.s.nod[[j]][i, ] <- list.s.nod[[j]][i, order(bt)]		
+				list.s.nod[[j]][i, ] <- list.s.nod[[j]][i, order(branch.times)]		
 				list.i.mat[[j]][i, ][list.s.nod[[j]][i, ] == 2] <- 2		
 				list.i.mat[[j]][i, ][list.s.nod[[j]][i, ] == 1] <- 1		
 				list.i.mat[[j]][i, ] <- cumsum(list.i.mat[[j]][i, ])		
@@ -185,3 +194,4 @@ bgmyc.dataprep <- function(tree)
 	
 	return(prepdata)
 }
+# }}}
