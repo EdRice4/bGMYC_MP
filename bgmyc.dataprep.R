@@ -34,10 +34,13 @@ bgmyc.dataprep <- function(tr)
 			envir = local.env)
 
 		ancs <- cbind(
+		              # Get corresponding beginning node for each end node
 		              tr$edge[
+		                      # Return position of each end node
 		                      pmatch(
 		                             # Labelling nodes
 		                             (1:numnod + numtip),
+		                             # End nodes
 		                             tr$edge[, 2]
 		                             )
 		                      , 1]
@@ -108,7 +111,9 @@ bgmyc.dataprep <- function(tr)
 		nod<-list()
 		
 		for (j in (2:nthresh)) {										
+			# Threshy is the distinction?
 			threshy <- sb[j]									
+			# Tmp does not care about NA
 			tmp <- (bt.ancs[, 1] < threshy) & (bt.ancs[, 2] >= threshy)		
 			nod.type <- tmp + (bt >= threshy)								
 			mrca.nodes[[j]] <- which(nod.type == 2)				
