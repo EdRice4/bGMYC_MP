@@ -43,16 +43,16 @@ bgmyc.dataprep <- function(tree)
 		assign("sorted.branch.times", sort(branch.times), envir = local.env)
 		assign("number.nodes", length(branch.times), envir = local.env)
 		assign("number.tips", length(tree$tip.label), envir = local.env)
-		assign("numall", length(branch.times) + length(tree$tip.label), envir = local.env)
+		assign("number.nodes.tips", length(branch.times) + length(tree$tip.label), envir = local.env)
 		assign("nthresh", number.nodes, envir = local.env)
 		
 		internod <- sorted.branch.times[2:number.nodes] - sorted.branch.times[1:number.nodes - 1]
 		internod[number.nodes] <- 0 - sorted.branch.times[number.nodes]
 		assign("internod", internod, envir = local.env)
 
-		assign("nesting", sapply((number.tips + 1):numall, nesting.nodes), 
+		assign("nesting", sapply((number.tips + 1):number.nodes.tips, nesting.nodes), 
 			envir = local.env)
-		assign("nested", sapply((number.tips + 1):numall, nest.nodes), 
+		assign("nested", sapply((number.tips + 1):number.nodes.tips, nest.nodes), 
 			envir = local.env)
 
 		ancs <- cbind(
@@ -122,7 +122,7 @@ bgmyc.dataprep <- function(tree)
 					  }
 
 
-	create.mat <- function(nthresh=number.nodes)
+	create.mat <- function(number.nodes)
 	{
 	
 		mrca.nodes<-list()
@@ -132,7 +132,7 @@ bgmyc.dataprep <- function(tree)
 		list.s.nod<-list()
 		nod<-list()
 		
-		for (j in (2:nthresh)) {										
+		for (j in (2:number.nodes)) {										
 			# Threshy is the distinction?
 			threshy <- sorted.branch.times[j]									
 			# Tmp does not care about NA
