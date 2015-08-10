@@ -43,8 +43,9 @@ bgmyc.dataprep <- function(tree) {
         assign("number.nodes", length(branch.times), envir = local.env)
         assign("number.tips", length(tree$tip.label), envir = local.env)
         assign(
-                "number.nodes.tips", length(branch.times) +
-                length(tree$tip.label), envir = local.env
+                "number.nodes.tips",
+                length(branch.times) + length(tree$tip.label),
+                envir = local.env
                 )
         
         internod <- sorted.branch.times[2:number.nodes] - sorted.branch.times[1:number.nodes - 1]
