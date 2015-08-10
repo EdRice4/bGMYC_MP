@@ -1,27 +1,27 @@
-bgmyc.dataprep <- function(tr)
+bgmyc.dataprep <- function(tree)
 {
 
-	if (!is.ultrametric(tr)) {
+	if (!is.ultrametric(tree)) {
 		stop("Your input tree is not ultrametric. This method requires that trees be ultrametric.")
 	}
-	if (!is.binary.tree(tr)) {
+	if (!is.binary.tree(tree)) {
 		stop("Your input tree is not fully bifurcating, please resolve with zero branch lengths")
 	}
-	if (0 %in% tr$edge.length[which(tr$edge[,2]<=length(tr$tip.label))]) {
+	if (0 %in% tree$edge.length[which(tree$edge[,2]<=length(tree$tip.label))]) {
 		stop("Your tree contains tip branches with zero length. This will wreak havoc with the GMYC model.")
 	}
 
 
 	local.env <- environment()
 	read.data <- function(z = 1) {
-		bt <- -branching.times(tr)
+		bt <- -branching.times(tree)
 		bt[bt > -1e-06] <- -1e-06
 		names(bt) <- NULL
 		assign("bt", bt, envir = local.env)
 		assign("sb", sort(bt), envir = local.env)
 		assign("numnod", length(bt), envir = local.env)
-		assign("numtip", length(tr$tip.label), envir = local.env)
-		assign("numall", length(bt) + length(tr$tip.label), envir = local.env)
+		assign("numtip", length(tree$tip.label), envir = local.env)
+		assign("numall", length(bt) + length(tree$tip.label), envir = local.env)
 		assign("nthresh", numnod, envir = local.env)
 		
 		internod <- sb[2:numnod] - sb[1:numnod - 1]
@@ -35,13 +35,13 @@ bgmyc.dataprep <- function(tr)
 
 		ancs <- cbind(
 		              # Get corresponding beginning node for each end node
-		              tr$edge[
+		              tree$edge[
 		                      # Return position of each end node
 		                      pmatch(
 		                             # Labelling nodes
 		                             (1:numnod + numtip),
 		                             # End nodes
-		                             tr$edge[, 2]
+		                             tree$edge[, 2]
 		                             )
 		                      , 1]
 		              , (1:numnod + numtip))
@@ -49,7 +49,7 @@ bgmyc.dataprep <- function(tr)
 		## Issue is in the manner in which the nodes are labelled; the first
 		## node of the tree, that posessing the lowest value,
 		## the one furthest left, will never? be an end node and will therefore
-		## never be present in the 2nd column of tr$edge.
+		## never be present in the 2nd column of tree$edge.
 		# a <- 1:numnod
 		# b <- a + numtip
 		bt.ancs <- cbind(bt[ancs[, 1] - numtip], bt[ancs[, 2] - 
@@ -59,9 +59,9 @@ bgmyc.dataprep <- function(tr)
 	}
 
 					  nest.nodes <- function(x, p = 0) {
-						  numtip <- length(tr$tip.label)
+						  numtip <- length(tree$tip.label)
 						  nods <- array(NA, 0)
-						  desc <- as.integer(tr$edge[, 2][tr$edge[, 1] == x])
+						  desc <- as.integer(tree$edge[, 2][tree$edge[, 1] == x])
 						  if (desc[1] > numtip) {
 							  nods <- c(nods, desc[1], nest.nodes(desc[1]))
 						  }
@@ -77,10 +77,10 @@ bgmyc.dataprep <- function(tr)
 					  }
 
 					  nesting.nodes <- function(x, p = 0) {
-						  numtip <- length(tr$tip.label)
+						  numtip <- length(tree$tip.label)
 						  nod <- array(NA, 0)
 						  if (x >= numtip + 2) {
-							  anc <- as.integer(tr$edge[, 1][tr$edge[, 2] == x])
+							  anc <- as.integer(tree$edge[, 1][tree$edge[, 2] == x])
 						  }
 						  else {
 							  anc <- 1
@@ -169,7 +169,7 @@ bgmyc.dataprep <- function(tr)
 		prepdata[["list.s.nod"]]<-list.s.nod
 		prepdata[["list.i.mat"]]<-list.i.mat
 		prepdata[["internod"]]<-internod
-		prepdata[["tree"]]<-tr
+		prepdata[["tree"]]<-tree
 
 	
 	return(prepdata)
