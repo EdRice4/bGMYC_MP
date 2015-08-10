@@ -1,14 +1,25 @@
 bgmyc.dataprep <- function(tree)
 {
 
+	# If the tree is not ultramteric, halt execution and display appropriate
+	# error message.
 	if (!is.ultrametric(tree)) {
-		stop("Your input tree is not ultrametric. This method requires that trees be ultrametric.")
+		stop(
+		     "Your input tree is not ultrametric. This method requires that
+		     trees be ultrametric."
+		     )
 	}
 	if (!is.binary.tree(tree)) {
-		stop("Your input tree is not fully bifurcating, please resolve with zero branch lengths")
+		stop(
+		     "Your input tree is not fully bifurcating, please resolve with
+		     zero branch lengths"
+		     )
 	}
 	if (0 %in% tree$edge.length[which(tree$edge[,2]<=length(tree$tip.label))]) {
-		stop("Your tree contains tip branches with zero length. This will wreak havoc with the GMYC model.")
+		stop(
+		     "Your tree contains tip branches with zero length. This will
+		     wreak havoc with the GMYC model."
+		     )
 	}
 
 
