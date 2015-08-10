@@ -1,8 +1,7 @@
 #!/usr/bin/env Rscript
 
 # {{{  bgmyc.dataprep
-bgmyc.dataprep <- function(tree)
-{
+bgmyc.dataprep <- function(tree) {
 
     # {{{ Error
     # If the tree is not ultramteric, halt execution and display appropriate
