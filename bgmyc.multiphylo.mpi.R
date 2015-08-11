@@ -27,6 +27,9 @@ bgmyc.multiphylo.mpi <- function(
              #)
     #}
 
+    # Utilize only 4 CPUs; testing purposes
+    nproc <- 4
+
     # Calculate how many trees to send to each slave
     buffer <- ceiling(length(multiphylo) / (nproc - 1))
     # Partition data
@@ -49,8 +52,6 @@ bgmyc.multiphylo.mpi <- function(
     }
 
     # Spawn slave CPUs, preserving one for master
-    # Utilize only 4 CPUs; testing purposes
-    nproc <- 4
     mpi.spawn.Rslaves(nslaves=nproc-1)
 
     # Optimize function for MPI environment
