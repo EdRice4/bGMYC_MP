@@ -22,7 +22,8 @@ bgmyc.multiphylo.mpi <- function(
         stop(
              "This system has an insufficient number of CPUs.
              If running on linux, check no. of CPUs in terminal with 'nproc'.
-             If running on mac, check no. of CPUs in terminal with 'sysctl -n hw.cpu'.\n"
+             If running on mac, check no. of CPUs in terminal with
+             'sysctl -n hw.cpu'.\n"
              )
     }
 
