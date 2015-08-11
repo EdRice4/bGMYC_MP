@@ -6,8 +6,7 @@ bgmyc.multiphylo.mpi <- function(
                                  scale=c(20, 10, 5), start=c(1, 0.5, 50),
                                  sampler=bgmyc.gibbs.mpi, likelihood=bgmyc.lik,
                                  prior=bgmyc.prior
-                                 )
-{
+                                 ) {
 
     # Test for MPI environment and determine number of CPUs to utilize
     #if (Sys.info()['sysname'] == "Linux") {
@@ -55,14 +54,7 @@ bgmyc.multiphylo.mpi <- function(
     mpi.spawn.Rslaves(nslaves=nproc-1)
 
     # Optimize function for MPI environment
-    bgmyc.mpi <- function(
-                           trees, mcmc=mcmc, burnin=burnin,
-                           thinning=thinning, py1=py1, py2=py2,
-                           pc1=pc1, pc2=pc2, t1=t1, t2=t2, scale=scale,
-                           start=start, sampler=sampler,
-                           likelihood=likelihood, prior=prior
-                           )
-    {
+    bgmyc.mpi <- function(trees, ...) {
 
         # Initialize empty list for output
         outputlist <- list()
@@ -92,7 +84,11 @@ bgmyc.multiphylo.mpi <- function(
     mpi.bcast.Robj2slave(branching.times)
     
     # Run that function, boi
-    output <- mpi.apply(trees.split, bgmyc.mpi)
+    output <- mpi.apply(
+                        trees.split, bgmyc.mpi, mcmc, burnin, thinning, py1,
+                        py2, pc1, pc2, t1, t2, scale, start, likelihood,
+                        prior
+                        )
     
     # Exit MPI
     mpi.exit()
