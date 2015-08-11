@@ -36,7 +36,7 @@ bgmyc.multiphylo.mpi <- function(
     # Partition data
     trees.split <- split(multiphylo, ceiling(seq_along(multiphylo) / buffer))
 
-     Print informative output for user
+     # Print informative output for user
      cat("You are running a multi tree analysis on", ntre, "trees.\n")
      cat("These trees each contain", length(multiphylo$tip.label[[1]]), "tips.\n")
      cat("The Yule process rate change parameter has a uniform prior ranging from", py1, "to", py2, ".\n")
