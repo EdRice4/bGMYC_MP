@@ -48,7 +48,7 @@ bgmyc.multiphylo.mpi <- function(
      cat("Given your settings for MCMC, burnin and thinning, your analysis will result in", ((mcmc-burnin)/thinning)*ntre, "samples being retained.\n")
      cat("Given your settings for MPI, your analysis will result in")
      for(i in 1:length(trees.split)) {
-         cat(length(i) "samples being sent to slave " i)
+         cat(length(i), "samples being sent to slave", i)
      }
 
     # Optimize function for MPI environment
