@@ -93,6 +93,7 @@ bgmyc.dataprep <- function(tree) {
         assign("number.nodes", tree$Nnode, envir = local.env)
         # assign("number.tips", length(tree$tip.lable, envir = local.env)
         assign("number.tips", length(tree$tip.label), envir = local.env)
+        assign("nodes.label", 1:number.nodes + number.tips, envir = local.env)
         assign(
                 "number.nodes.tips",
                 number.nodes + number.tips,
@@ -113,18 +114,20 @@ bgmyc.dataprep <- function(tree) {
                sapply((number.tips + 1):number.nodes.tips, nest.nodes),
                envir = local.env)
 
+        # Associate each node with its corresponding ancestor
         ancs <- cbind(
                       # Get corresponding beginning node for each end node
                       tree$edge[
                               # Return position of each end node
                               pmatch(
                                      # Labelling nodes
-                                     (1:number.nodes + number.tips),
+                                     (nodes.label),
                                      # End nodes
                                      tree$edge[, 2]
                                      ),
                               1],
-                      (1:number.nodes + number.tips))
+                      (nodes.label)
+                      )
         # Issue is in pmatch
         ## Issue is in the manner in which the nodes are labelled; the first
         ## node of the tree, that posessing the lowest value,
@@ -132,12 +135,17 @@ bgmyc.dataprep <- function(tree) {
         ## never be present in the 2nd column of tree$edge.
         # a <- 1:number.nodes
         # b <- a + number.tips
-        branch.times.ancs <- cbind(branch.times[ancs[, 1] - number.tips], branch.times[ancs[, 2] - 
-            number.tips])
+        # Associate the branching time of each node with the branching time of
+        # its corresponding ancestor
+        branch.times.ancs <- cbind(
+                                   branch.times[ancs[, 1] - number.tips],
+                                   branch.times[ancs[, 2] - number.tips]
+                                   )
         assign("branch.times.ancs", branch.times.ancs, envir = local.env)
     }
     # }}}
 
+    # {{{ create.mat
     create.mat <- function(number.nodes) {
     
         mrca.nodes <- list()
@@ -184,11 +192,8 @@ bgmyc.dataprep <- function(tree) {
             list.i.mat[[j]][n[[j]] + 1, nod[[j]] == 0] <- 1
             list.i.mat[[j]][n[[j]] + 1, nod[[j]] == 2] <- -1
             list.i.mat[[j]][n[[j]] + 1, ] <- cumsum(list.i.mat[[j]][n[[j]] + 1, ]) + 1
-            
-            
-
-            
         }
+        # }}}
         
         assign("mrca.nodes", mrca.nodes, envir = local.env)    
         assign("nod.types", nod.types, envir = local.env)
