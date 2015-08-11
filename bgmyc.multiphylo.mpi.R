@@ -34,6 +34,7 @@ bgmyc.multiphylo.mpi <- function(
     # Calculate how many trees to send to each slave
     buffer <- ceiling(length(multiphylo) / (nproc - 1))
     # Partition data
+    ntre <- length(multiphylo)
     trees.split <- split(multiphylo, ceiling(seq_along(multiphylo) / buffer))
 
      # Print informative output for user
