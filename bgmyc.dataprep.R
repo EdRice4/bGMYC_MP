@@ -33,8 +33,53 @@ bgmyc.dataprep <- function(tree) {
     }
     # }}}
 
+    # {{{ nest.nodes
+    nest.nodes <- function(x) {
+        number.tips <- length(tree$tip.label)
+        nods <- array(NA, 0)
+        desc <- as.integer(tree$edge[, 2][tree$edge[, 1] == x])
+        if (desc[1] > number.tips) {
+            nods <- c(nods, desc[1], nest.nodes(desc[1]))
+        }
+        if (desc[2] > number.tips) {
+            nods <- c(nods, desc[2], nest.nodes(desc[2]))
+        }
+        if (length(nods) > 0) {
+            return(nods)
+        }
+        else {
+            return(NULL)
+        }
+    }
+    # }}}
+
+    # {{{ nesting.nodes
+    nesting.nodes <- function(x) {
+        number.tips <- length(tree$tip.label)
+        nod <- array(NA, 0)
+        if (x >= number.tips + 2) {
+            anc <- as.integer(tree$edge[, 1][tree$edge[, 2] == x])
+        }
+        else {
+            anc <- 1
+        }
+        if (anc >= number.tips + 2) {
+            nod <- c(nod, anc, nesting.nodes(anc))
+        }
+        if (anc == number.tips + 1) {
+            nod <- c(nod, anc)
+        }
+        if (length(nod) > 0) {
+            return(nod)
+        }
+        else {
+            return(NULL)
+        }
+    }
+    # }}}
 
     local.env <- environment()
+    # {{{ read.data
     read.data <- function() {
         # Get branch times (distance from each node the tips)
         branch.times <- -branching.times(tree)
@@ -54,10 +99,13 @@ bgmyc.dataprep <- function(tree) {
                 envir = local.env
                 )
         
-        internod <- sorted.branch.times[2:number.nodes] - sorted.branch.times[1:number.nodes - 1]
-        internod[number.nodes] <- abs(sorted.branch.times[number.nodes])
-        assign("internod", internod, envir = local.env)
-
+        internodal.branch.times <- sorted.branch.times[2:number.nodes] - sorted.branch.times[1:number.nodes - 1]
+        internodal.branch.times[number.nodes] <- abs(sorted.branch.times[number.nodes])
+        assign(
+               "internodal.branch.times",
+               internodal.branch.times,
+               envir = local.env
+               )
         assign("nesting",
                sapply((number.tips + 1):number.nodes.tips, nesting.nodes),
                envir = local.env)
@@ -74,9 +122,9 @@ bgmyc.dataprep <- function(tree) {
                                      (1:number.nodes + number.tips),
                                      # End nodes
                                      tree$edge[, 2]
-                                     )
-                              , 1]
-                      , (1:number.nodes + number.tips))
+                                     ),
+                              1],
+                      (1:number.nodes + number.tips))
         # Issue is in pmatch
         ## Issue is in the manner in which the nodes are labelled; the first
         ## node of the tree, that posessing the lowest value,
@@ -87,60 +135,17 @@ bgmyc.dataprep <- function(tree) {
         branch.times.ancs <- cbind(branch.times[ancs[, 1] - number.tips], branch.times[ancs[, 2] - 
             number.tips])
         assign("branch.times.ancs", branch.times.ancs, envir = local.env)
-        
     }
+    # }}}
 
-                      nest.nodes <- function(x) {
-                          number.tips <- length(tree$tip.label)
-                          nods <- array(NA, 0)
-                          desc <- as.integer(tree$edge[, 2][tree$edge[, 1] == x])
-                          if (desc[1] > number.tips) {
-                              nods <- c(nods, desc[1], nest.nodes(desc[1]))
-                          }
-                          if (desc[2] > number.tips) {
-                              nods <- c(nods, desc[2], nest.nodes(desc[2]))
-                          }
-                          if (length(nods) > 0) {
-                              return(nods)
-                          }
-                          else {
-                              return(NULL)
-                          }
-                      }
-
-                      nesting.nodes <- function(x) {
-                          number.tips <- length(tree$tip.label)
-                          nod <- array(NA, 0)
-                          if (x >= number.tips + 2) {
-                              anc <- as.integer(tree$edge[, 1][tree$edge[, 2] == x])
-                          }
-                          else {
-                              anc <- 1
-                          }
-                          if (anc >= number.tips + 2) {
-                              nod <- c(nod, anc, nesting.nodes(anc))
-                          }
-                          if (anc == number.tips + 1) {
-                              nod <- c(nod, anc)
-                          }
-                          if (length(nod) > 0) {
-                              return(nod)
-                          }
-                          else {
-                              return(NULL)
-                          }
-                      }
-
-
-    create.mat <- function(number.nodes)
-    {
+    create.mat <- function(number.nodes) {
     
-        mrca.nodes<-list()
-        nod.types<-list()
-        n<-list()
-        list.i.mat<-list()
-        list.s.nod<-list()
-        nod<-list()
+        mrca.nodes <- list()
+        nod.types <- list()
+        n <- list()
+        list.i.mat <- list()
+        list.s.nod <- list()
+        nod <- list()
         
         for (j in (2:number.nodes)) {                                        
             # Threshy is the distinction?
@@ -200,7 +205,7 @@ bgmyc.dataprep <- function(tree) {
         prepdata[["n"]]<-n
         prepdata[["list.s.nod"]]<-list.s.nod
         prepdata[["list.i.mat"]]<-list.i.mat
-        prepdata[["internod"]]<-internod
+        prepdata[["internodal.branch.times"]]<-internodal.branch.times
         prepdata[["tree"]]<-tree
 
     
