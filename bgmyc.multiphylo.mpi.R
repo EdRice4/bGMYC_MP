@@ -9,6 +9,34 @@ bgmyc.multiphylo.mpi <- function(
                                  )
 {
 
+    # Optimize function for MPI environment
+    bgmyc.mpi <- function(
+                           trees, mcmc=mcmc, burnin=burnin,
+                           thinning=thinning, py1=py1, py2=py2,
+                           pc1=pc1, pc2=pc2, t1=t1, t2=t2, scale=scale,
+                           start=start, sampler=sampler,
+                           likelihood=likelihood, prior=prior
+                           )
+    {
+
+        # Initialize empty list for output
+        outputlist <- list()
+
+        for (i in 1:length(trees)) {
+            data <- bgmyc.dataprep(trees[[i]])
+            NNodes <- data$tree$Nnode
+            outputlist[[i]] <- sampler(
+                                       data, m=mcmc, burnin, thinning, py1,
+                                       py2, pc1, pc2, t1, t2, scale, start,
+                                       likelihood, prior
+                                       )
+        }
+
+        class(outputlist) <- "multibgmyc"
+        return(outputlist)
+
+    }
+
     # Test for MPI environment and determine number of CPUs to utilize
     if (Sys.info()['sysname'] == "Linux") {
         nproc <- as.numeric(system("nproc", intern=T))
@@ -48,34 +76,6 @@ bgmyc.multiphylo.mpi <- function(
     # for(i in 1:length(trees.split)) {
         # cat(length(i) "samples being sent to slave " i)
     # }
-
-    # Optimize function for MPI environment
-    bgmyc.mpi <- function(
-                           trees, mcmc=mcmc, burnin=burnin,
-                           thinning=thinning, py1=py1, py2=py2,
-                           pc1=pc1, pc2=pc2, t1=t1, t2=t2, scale=scale,
-                           start=start, sampler=sampler,
-                           likelihood=likelihood, prior=prior
-                           )
-    {
-
-        # Initialize empty list for output
-        outputlist <- list()
-
-        for (i in 1:length(trees)) {
-            data <- bgmyc.dataprep(trees[[i]])
-            NNodes <- data$tree$Nnode
-            outputlist[[i]] <- sampler(
-                                       data, m=mcmc, burnin, thinning, py1,
-                                       py2, pc1, pc2, t1, t2, scale, start,
-                                       likelihood, prior
-                                       )
-        }
-
-        class(outputlist) <- "multibgmyc"
-        return(outputlist)
-
-    }
 
     # Prepare environment; this is ugly
     mpi.bcast.Robj2slave(bgmyc.gibbs.mpi)
