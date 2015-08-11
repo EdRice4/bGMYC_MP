@@ -64,7 +64,7 @@ bgmyc.multiphylo.mpi <- function(
 
         for (i in 1:length(trees)) {
             data <- bgmyc.dataprep(trees[[i]])
-            NNodes <- data$tree$Nnode  # why is this performed?
+            NNodes <- data$tree$Nnode
             outputlist[[i]] <- sampler(
                                        data, m=mcmc, burnin, thinning, py1,
                                        py2, pc1, pc2, t1, t2, scale, start,
