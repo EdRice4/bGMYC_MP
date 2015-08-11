@@ -49,7 +49,7 @@ bgmyc.multiphylo.mpi <- function(
 
     # Optimize function for MPI environment
     bgmyc.mpi <- function(
-                           multiphylo, mcmc=mcmc, burnin=burnin,
+                           trees, mcmc=mcmc, burnin=burnin,
                            thinning=thinning, py1=py1, py2=py2,
                            pc1=pc1, pc2=pc2, t1=t1, t2=t2, scale=scale,
                            start=start, sampler=sampler,
