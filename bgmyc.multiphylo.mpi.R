@@ -9,21 +9,6 @@ bgmyc.multiphylo.mpi <- function(
                                  )
 {
 
-     # Print informative output for user
-     cat("You are running a multi tree analysis on", ntre, "trees.\n")
-     cat("These trees each contain", length(multiphylo$tip.label[[1]]), "tips.\n")
-     cat("The Yule process rate change parameter has a uniform prior ranging from", py1, "to", py2, ".\n")
-     cat("The coalescent process rate change parameter has a uniform prior ranging from", pc1, "to", pc2, ".\n")
-     cat("The threshold parameter, which is equal to the number of species, has a uniform prior ranging from", t1, "to", t2, ". The upper bound of this prior should not be more than the number of tips in your trees.\n")
-     cat("The MCMC will start with the Yule parameter set to", start[1], ".\n")
-     cat("The MCMC will start with the coalescent parameter set to", start[2], ".\n")
-     cat("The MCMC will start with the threshold parameter set to", start[3], ". If this number is greater than the number of tips in your tree, an error will result.\n")
-     cat("Given your settings for MCMC, burnin and thinning, your analysis will result in", ((mcmc-burnin)/thinning)*ntre, "samples being retained.\n")
-     cat("Given your settings for MPI, your analysis will result in")
-     for(i in 1:length(trees.split)) {
-         cat(length(i), "samples being sent to slave", i)
-     }
-
     # Test for MPI environment and determine number of CPUs to utilize
     #if (Sys.info()['sysname'] == "Linux") {
         #nproc <- as.numeric(system("nproc", intern=T))
@@ -42,15 +27,31 @@ bgmyc.multiphylo.mpi <- function(
              #)
     #}
 
-    # Spawn slave CPUs, preserving one for master
-    # Utilize only 4 CPUs; testing purposes
-    nproc <- 4
-    mpi.spawn.Rslaves(nslaves=nproc-1)
     # Calculate how many trees to send to each slave
     buffer <- ceiling(length(multiphylo) / (nproc - 1))
     # Partition data
     ntre <- length(multiphylo)
     trees.split <- split(multiphylo, ceiling(seq_along(multiphylo) / buffer))
+
+    # Print informative output for user
+    cat("You are running a multi tree analysis on", ntre, "trees.\n")
+    cat("These trees each contain", length(multiphylo$tip.label[[1]]), "tips.\n")
+    cat("The Yule process rate change parameter has a uniform prior ranging from", py1, "to", py2, ".\n")
+    cat("The coalescent process rate change parameter has a uniform prior ranging from", pc1, "to", pc2, ".\n")
+    cat("The threshold parameter, which is equal to the number of species, has a uniform prior ranging from", t1, "to", t2, ". The upper bound of this prior should not be more than the number of tips in your trees.\n")
+    cat("The MCMC will start with the Yule parameter set to", start[1], ".\n")
+    cat("The MCMC will start with the coalescent parameter set to", start[2], ".\n")
+    cat("The MCMC will start with the threshold parameter set to", start[3], ". If this number is greater than the number of tips in your tree, an error will result.\n")
+    cat("Given your settings for MCMC, burnin and thinning, your analysis will result in", ((mcmc-burnin)/thinning)*ntre, "samples being retained.\n")
+    cat("Given your settings for MPI, your analysis will result in ")
+    for(i in 1:length(trees.split)) {
+        cat(length(trees.split[i]), "samples being sent to slave", i, ", ")
+    }
+
+    # Spawn slave CPUs, preserving one for master
+    # Utilize only 4 CPUs; testing purposes
+    nproc <- 4
+    mpi.spawn.Rslaves(nslaves=nproc-1)
 
     # Optimize function for MPI environment
     bgmyc.mpi <- function(
