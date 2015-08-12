@@ -93,6 +93,9 @@ bgmyc.multiphylo.mpi <- function(
     # Exit MPI
     mpi.exit()
 
+    # Collapse output by first level only
+    output <- unlist(output, recursive=FALSE)
+
     # Return output
     return(output)
 }
