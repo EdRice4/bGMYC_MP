@@ -16,18 +16,15 @@ bgmyc.multiphylo.mpi <- function(
         #nproc <- as.numeric(system("sysctl -n hw.ncpu", intern=T))
     #}
 
-    ## Halt execution of script if insufficient amount of CPUs
-    #if (nproc <= 2) {
-        #stop(
-             #"This system has an insufficient number of CPUs.
-             #If running on linux, check no. of CPUs in terminal with 'nproc'.
-             #If running on mac, check no. of CPUs in terminal with
-             #'sysctl -n hw.cpu'.\n"
-             #)
-    #}
-
-    # Utilize only 4 CPUs; testing purposes
-    nproc <- 4
+    # Halt execution of script if insufficient amount of CPUs
+    if (nproc <= 2) {
+        stop(
+             "This system has an insufficient number of CPUs.
+             If running on linux, check no. of CPUs in terminal with 'nproc'.
+             If running on mac, check no. of CPUs in terminal with
+             'sysctl -n hw.cpu'.\n"
+             )
+    }
 
     # Calculate how many trees to send to each slave
     buffer <- ceiling(length(multiphylo) / (nproc - 1))
