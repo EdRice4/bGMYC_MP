@@ -11,6 +11,12 @@ bgmyc.multiphylo.mpi <- function(
     # Get length of data for informative output
     ntre <- length(multiphylo)
 
+    # Generate SOCK cluster
+    cl <- makeCluster(nproc)
+
+    # Partition data amongst processors
+    trees.split <- clusterSplit(cl, multiphylo)
+
     # Print informative output for user
     cat("You are running a multi tree analysis on", ntre, "trees.\n")
     cat("These trees each contain", length(multiphylo$tip.label[[1]]), "tips.\n")
@@ -25,12 +31,6 @@ bgmyc.multiphylo.mpi <- function(
     for(i in 1:length(trees.split)) {
         cat(length(trees.split[i]), "samples being sent to slave", i, ", ")
     }
-
-    # Generate SOCK cluster
-    cl <- makeCluster(nproc)
-
-    # Partition data amongst processors
-    trees.split <- clusterSplit(cl, multiphylo)
 
     # Optimize function for MPI environment
     bgmyc.mpi <- function(trees, ...) {
