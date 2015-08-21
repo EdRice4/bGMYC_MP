@@ -27,10 +27,10 @@ bgmyc.multiphylo.mpi <- function(
     }
 
     # Generate SOCK cluster
-    cluster <- makeCluster(nproc)
+    cl <- makeCluster(nproc)
 
     # Partition data amongst processors
-    trees.split <- clusterSplit(cluster, multiphylo)
+    trees.split <- clusterSplit(cl, multiphylo)
 
     # Optimize function for MPI environment
     bgmyc.mpi <- function(trees, ...) {
@@ -59,17 +59,17 @@ bgmyc.multiphylo.mpi <- function(
                     'bgmyc.dataprep', 'is.ultrametric', 'is.binary.tree',
                     'branching.times'
                     )
-    clusterExport(cluster, funcs2send)
+    clusterExport(cl, funcs2send)
     
     # Run that function
     output <- parLapply(
-                        cluster, trees.split, bgmyc.mpi, mcmc, burnin,
+                        cl, trees.split, bgmyc.mpi, mcmc, burnin,
                         thinning, py1, py2, pc1, pc2, t1, t2, scale, start,
                         likelihood, prior
                         )
     
     # Shutdown SOCK cluster
-    stopCluster(cluster)
+    stopCluster(cl)
 
     # Collapse output by first level only
     output <- unlist(output, recursive=FALSE)
