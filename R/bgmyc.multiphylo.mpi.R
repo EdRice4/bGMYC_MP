@@ -12,7 +12,7 @@ bgmyc.multiphylo.mpi <- function(
     ntre <- length(multiphylo)
 
     # Generate SOCK cluster
-    cl <- makeCluster(nproc)
+    cl <- makeCluster(noproc)
 
     # Partition data amongst processors
     trees.split <- clusterSplit(cl, multiphylo)
