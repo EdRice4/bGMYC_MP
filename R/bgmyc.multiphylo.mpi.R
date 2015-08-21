@@ -1,36 +1,16 @@
 #!/usr/bin/env Rscript
 
 bgmyc.multiphylo.mpi <- function(
-                                 multiphylo, mcmc, burnin, thinning, py1=0,
-                                 py2=2, pc1=0, pc2=2, t1=2, t2=51,
+                                 multiphylo, mcmc, burnin, thinning, noproc,
+                                 py1=0, py2=2, pc1=0, pc2=2, t1=2, t2=51,
                                  scale=c(20, 10, 5), start=c(1, 0.5, 50),
                                  sampler=bgmyc.gibbs.mpi, likelihood=bgmyc.lik,
                                  prior=bgmyc.prior
                                  ) {
 
-    # Test for MPI environment and determine number of CPUs to utilize
-    #if (Sys.info()['sysname'] == "Linux") {
-        #nproc <- as.numeric(system("nproc", intern=T))
-    #}
-    #if (Sys.info()['sysname'] == "Darwin") {
-        #nproc <- as.numeric(system("sysctl -n hw.ncpu", intern=T))
-    #}
-
-    # Halt execution of script if insufficient amount of CPUs
-    if (nproc <= 2) {
-        stop(
-             "This system has an insufficient number of CPUs.
-             If running on linux, check no. of CPUs in terminal with 'nproc'.
-             If running on mac, check no. of CPUs in terminal with
-             'sysctl -n hw.cpu'.\n"
-             )
-    }
-
-    # Calculate how many trees to send to each slave
-    buffer <- ceiling(length(multiphylo) / (nproc - 1))
     # Partition data
     ntre <- length(multiphylo)
-    trees.split <- split(multiphylo, ceiling(seq_along(multiphylo) / buffer))
+    trees.split <- clusterSplit(multiphylo)
 
     # Print informative output for user
     cat("You are running a multi tree analysis on", ntre, "trees.\n")
@@ -47,8 +27,8 @@ bgmyc.multiphylo.mpi <- function(
         cat(length(trees.split[i]), "samples being sent to slave", i, ", ")
     }
 
-    # Spawn slave CPUs, preserving one for master
-    mpi.spawn.Rslaves(nslaves=nproc-1)
+    # Generate SOCK cluster
+    cluster <- makeCluster(nproc)
 
     # Optimize function for MPI environment
     bgmyc.mpi <- function(trees, ...) {
@@ -71,24 +51,23 @@ bgmyc.multiphylo.mpi <- function(
 
     }
 
-    # Prepare environment; this is ugly
-    mpi.bcast.Robj2slave(bgmyc.gibbs.mpi)
-    mpi.bcast.Robj2slave(bgmyc.lik)
-    mpi.bcast.Robj2slave(bgmyc.prior)
-    mpi.bcast.Robj2slave(bgmyc.dataprep)
-    mpi.bcast.Robj2slave(is.ultrametric)
-    mpi.bcast.Robj2slave(is.binary.tree)
-    mpi.bcast.Robj2slave(branching.times)
+    # Prepare environment
+    funcs2send <- c(
+                    'bgmyc.gibbs.mpi', 'bgmyc.lik', 'bgmyc.prior',
+                    'bgmyc.dataprep', 'is.ultrametric', 'is.binary.tree',
+                    'branching.times'
+                    )
+    clusterExport(cluster, funcs2send)
     
-    # Run that function, boi
-    output <- mpi.apply(
-                        trees.split, bgmyc.mpi, mcmc, burnin, thinning, py1,
-                        py2, pc1, pc2, t1, t2, scale, start, likelihood,
-                        prior
+    # Run that function
+    output <- parLapply(
+                        cluster, trees.split, bgmyc.mpi, mcmc, burnin,
+                        thinning, py1, py2, pc1, pc2, t1, t2, scale, start,
+                        likelihood, prior
                         )
     
-    # Exit MPI
-    mpi.exit()
+    # Shutdown SOCK cluster
+    stopCluster(cluster)
 
     # Collapse output by first level only
     output <- unlist(output, recursive=FALSE)
