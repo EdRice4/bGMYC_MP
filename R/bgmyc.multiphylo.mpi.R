@@ -27,7 +27,7 @@ bgmyc.multiphylo.mpi <- function(
     cat("The MCMC will start with the coalescent parameter set to", start[2], ".\n")
     cat("The MCMC will start with the threshold parameter set to", start[3], ". If this number is greater than the number of tips in your tree, an error will result.\n")
     cat("Given your settings for MCMC, burnin and thinning, your analysis will result in", ((mcmc-burnin)/thinning)*ntre, "samples being retained.\n")
-    cat("Given your settings for MPI, your analysis will result in ")
+    cat("Given your settings for MPI, your analysis will result in:\n")
     for(i in seq_along(trees.split)) {
         cat(length(trees.split[[i]]), "samples being sent to slave", i, "\n ")
     }
